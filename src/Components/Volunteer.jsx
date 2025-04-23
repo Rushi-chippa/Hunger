@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllUser } from '../Redux/Slice/UsersSlice';
+
 function Volunteer() {
     const dispatch = useDispatch();
     const { allUser } = useSelector(state => state?.user);
@@ -21,14 +22,15 @@ function Volunteer() {
                                 <h3 style={nameStyle}>👤 {user?.firstName}</h3>
                                 <p style={infoStyle}>📍 Location: {user?.location}</p>
                                 <p style={infoStyle}>📞 Phone: {user?.number}</p>
-                                {/* <p style={infoStyle}>🎯 Role: {user?.user_role}</p> */}
+                                <p style={emailStyle}>
+                                    ✉️ Email: {typeof user?.email === 'string' ? user.email.toLowerCase() : ''}
+                                </p>
                             </div>
                         ))
                 ) : (
                     <p style={{ textAlign: "center", width: "100%" }}>No food donors found.</p>
                 )}
             </div>
-
         </div>
     );
 }
@@ -68,6 +70,14 @@ const nameStyle = {
 
 const infoStyle = {
     margin: '4px 0',
+    color: '#555'
+};
+
+// Ensures email is on one line, and truncates if too long
+const emailStyle = {
+    margin: '4px 0',
     color: '#555',
-    textTransform: 'capitalize'
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
 };

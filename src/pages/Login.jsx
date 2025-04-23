@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../Redux/Slice/UsersSlice";
@@ -7,24 +7,38 @@ const LogInForm = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({
-        email: "", // Changed 'number' to 'email'
-        password: "",
+    const [formData, setFormData] = useState(() => {
+        return {
+            email: localStorage.getItem("loginEmail") || "",
+            password: "",
+        };
     });
+
+    useEffect(() => {
+        localStorage.setItem("loginEmail", formData.email);
+    }, [formData.email]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("Login submitted:", formData);
-        const res = dispatch(loginUser(formData));
-        alert("Login Successful!");
-        setFormData({ email: "", password: "" }); // Updated field names
-        if (res?.payload?.succes) {
-            navigate("/dashboard")
+        try {
+            const res = await dispatch(loginUser(formData)).unwrap();
+
+            alert("Login Successful!");
+            localStorage.removeItem("loginEmail");
+            setFormData({ email: "", password: "" });
+
+            if (res) {
+                navigate("/dashboard");
+            }
+        } catch (err) {
+            alert("Login Failed! Please check your credentials.");
+            console.error("Login error:", err);
         }
     };
 
@@ -49,9 +63,9 @@ const LogInForm = () => {
                         Email Address:
                     </label>
                     <input
-                        type="email" // Changed type to email
+                        type="email"
                         id="email"
-                        name="email" // Changed name to email
+                        name="email"
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="Enter your email"

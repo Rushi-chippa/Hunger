@@ -1,12 +1,29 @@
-import React, { useState } from "react";
-import { Home, Edit, Users, Utensils, History, LogOut } from "lucide-react"; // Updated icons
+import React, { useEffect, useState } from "react";
+import { Home, Edit, Users, Utensils, History, LogOut } from "lucide-react";
 import CreateFoodPost from "../Components/CreateFoodPost";
 import Volunteer from "../Components/Volunteer";
 import FoodDonorPage from "../Components/FoodDonorPage";
 import "../Styles/DashBoard.css";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllUser, logoutUser } from "../Redux/Slice/UsersSlice";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState("dashboard");
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { role } = useSelector((state) => state?.user);
+
+    console.log("User Role:", role);
+
+    useEffect(() => {
+        dispatch(getAllUser());
+    }, [dispatch]);
+
+    const handleLogout = () => {
+        dispatch(logoutUser());
+        navigate("/");
+    };
 
     const renderContent = () => {
         switch (activeTab) {
@@ -15,11 +32,15 @@ const Dashboard = () => {
             case "post":
                 return <CreateFoodPost />;
             case "volunteers":
-                return <Volunteer />;
+                return role === "foodDonar" ? <Volunteer /> : <h2 className="text-lg">❌ Access Denied</h2>;
             case "foodDonar":
                 return <FoodDonorPage />;
             case "earnings":
-                return <h2 className="text-xl font-semibold">💰 Food Delivery History</h2>;
+                return role === "admin" ? (
+                    <h2 className="text-xl font-semibold">💰 Food Delivery History</h2>
+                ) : (
+                    <h2 className="text-lg">❌ Access Denied</h2>
+                );
             default:
                 return <h2 className="text-lg">❓ Select a Tab</h2>;
         }
@@ -27,7 +48,7 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard">
-            {/* Sidebar - styled via CSS */}
+            {/* Sidebar */}
             <aside className="sidebar">
                 <h1>👨‍🌾 My Panel</h1>
                 <ul>
@@ -35,27 +56,37 @@ const Dashboard = () => {
                         <Home size={18} /> Dashboard
                     </li>
                     <li className={activeTab === "post" ? "active" : ""} onClick={() => setActiveTab("post")}>
-                        <Edit size={18} /> Create Post
+                        {role === "foodDonor" ? (
+                            <>
+                                <Edit size={18} /> Add Food Post
+                            </>
+                        ) : (
+                            <>
+                                <Edit size={18} /> Posts
+                            </>
+                        )}
                     </li>
-                    <li className={activeTab === "volunteers" ? "active" : ""} onClick={() => setActiveTab("volunteers")}>
-                        <Users size={18} /> Volunteers
-                    </li>
+                    {role === "foodDonar" && (
+                        <li className={activeTab === "volunteers" ? "active" : ""} onClick={() => setActiveTab("volunteers")}>
+                            <Users size={18} /> Volunteers
+                        </li>
+                    )}
                     <li className={activeTab === "foodDonar" ? "active" : ""} onClick={() => setActiveTab("foodDonar")}>
                         <Utensils size={18} /> Food Donor
                     </li>
-                    <li className={activeTab === "earnings" ? "active" : ""} onClick={() => setActiveTab("earnings")}>
-                        <History size={18} /> History
-                    </li>
-                    <li className="logout" onClick={() => alert("Logged out!")}>
+                    {role === "admin" && (
+                        <li className={activeTab === "earnings" ? "active" : ""} onClick={() => setActiveTab("earnings")}>
+                            <History size={18} /> History
+                        </li>
+                    )}
+                    <li className="logout" onClick={handleLogout}>
                         <LogOut size={18} /> Logout
                     </li>
                 </ul>
             </aside>
 
-            {/* Main content */}
-            <main className="main">
-                {renderContent()}
-            </main>
+            {/* Main Content */}
+            <main className="main">{renderContent()}</main>
         </div>
     );
 };

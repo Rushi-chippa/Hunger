@@ -2,27 +2,39 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPosts, createPost, deletePost } from "../Redux/Slice/postSlice";
 import "../Styles/CreateFoodPost.css";
+import { getAllUser } from "../Redux/Slice/UsersSlice";
 
 const CreateFoodPost = () => {
-    const userData = [
-        { name: "rushi", location: "yevlewadi" },
-        { name: "bhavesh", location: "katraj" },
-        { name: "aaditya", location: "yevlewadi" },
-        { name: "rajesh", location: "konndhawa" },
-    ];
-
+    const { userData, role } = useSelector(state => state?.user);
     const dispatch = useDispatch();
     const { posts } = useSelector((state) => state?.post);
 
     useEffect(() => {
         dispatch(fetchPosts());
+        dispatch(getAllUser());
     }, [dispatch]);
 
-    const [foodItems, setFoodItems] = useState([]);
+    const [foodItems, setFoodItems] = useState(() => {
+        return JSON.parse(localStorage.getItem("foodItems")) || [];
+    });
+
     const [newItem, setNewItem] = useState({ name: "", quantity: "", unit: "kg" });
-    const [formData, setFormData] = useState({ location: "", description: "" });
+
+    const [formData, setFormData] = useState(() => {
+        return JSON.parse(localStorage.getItem("formData")) || { location: "", description: "" };
+    });
+
     const [error, setError] = useState("");
     const [showModal, setShowModal] = useState(false);
+
+    // Save to localStorage on changes
+    useEffect(() => {
+        localStorage.setItem("foodItems", JSON.stringify(foodItems));
+    }, [foodItems]);
+
+    useEffect(() => {
+        localStorage.setItem("formData", JSON.stringify(formData));
+    }, [formData]);
 
     const handleNewItemChange = (e) => {
         const { name, value } = e.target;
@@ -65,6 +77,11 @@ const CreateFoodPost = () => {
                 setNewItem({ name: "", quantity: "", unit: "kg" });
                 setFormData({ location: "", description: "" });
                 setShowModal(false);
+
+                // Clear localStorage
+                localStorage.removeItem("foodItems");
+                localStorage.removeItem("formData");
+
                 dispatch(fetchPosts());
             })
             .catch((err) => {
@@ -75,19 +92,20 @@ const CreateFoodPost = () => {
 
     const handleDelete = (id) => {
         if (window.confirm("Are you sure you want to delete this post?")) {
-            const res = dispatch(deletePost(id)).then(() => dispatch(fetchPosts()));
-            console.log(res)
+            dispatch(deletePost(id)).then(() => dispatch(fetchPosts()));
         }
     };
 
     return (
         <div className="max-w-4xl mx-auto px-4 py-6">
-            <button
-                onClick={() => setShowModal(true)}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-300 mb-6 float-right"
-            >
-                ➕ Create Food Post
-            </button>
+            {role === "foodDonor" && (
+                <button
+                    onClick={() => setShowModal(true)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md shadow-md hover:bg-blue-600 transition duration-300 mb-6 float-right"
+                >
+                    ➕ Create Food Post
+                </button>
+            )}
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -102,9 +120,8 @@ const CreateFoodPost = () => {
                             <h2 className="text-xl font-semibold mb-4 text-center">
                                 Create Food Post
                             </h2>
-                            {error && (
-                                <p className="text-red-500 text-center">{error}</p>
-                            )}
+                            {error && <p className="text-red-500 text-center">{error}</p>}
+
                             <div className="mb-4">
                                 <h4 className="font-semibold">Food Items</h4>
                                 <div className="flex space-x-2 mb-2">
@@ -163,6 +180,7 @@ const CreateFoodPost = () => {
                                     </ul>
                                 )}
                             </div>
+
                             <div className="mb-4">
                                 <label className="font-semibold">Description:</label>
                                 <textarea
@@ -192,14 +210,14 @@ const CreateFoodPost = () => {
                                     </h4>
                                     {userData.filter(
                                         (user) =>
-                                            user.location.toLowerCase() ===
+                                            user.location?.toLowerCase() ===
                                             formData.location.toLowerCase()
                                     ).length > 0 ? (
                                         <ul>
                                             {userData
                                                 .filter(
                                                     (user) =>
-                                                        user.location.toLowerCase() ===
+                                                        user.location?.toLowerCase() ===
                                                         formData.location.toLowerCase()
                                                 )
                                                 .map((user, index) => (

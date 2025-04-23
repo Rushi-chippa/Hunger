@@ -6,9 +6,7 @@ import store from './Redux/store.js';
 import './index.css'; // Tailwind should be configured here
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
     <Provider store={store}>
       <App />
     </Provider>
-  </StrictMode>
 );
