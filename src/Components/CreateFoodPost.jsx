@@ -5,14 +5,10 @@ import "../Styles/CreateFoodPost.css";
 import { getAllUser } from "../Redux/Slice/UsersSlice";
 
 const CreateFoodPost = () => {
-    const { userData, role } = useSelector(state => state?.user);
+    const { allUser, role } = useSelector(state => state?.user);
+    console.log(allUser)
     const dispatch = useDispatch();
     const { posts } = useSelector((state) => state?.post);
-
-    useEffect(() => {
-        dispatch(fetchPosts());
-        dispatch(getAllUser());
-    }, [dispatch]);
 
     const [foodItems, setFoodItems] = useState(() => {
         return JSON.parse(localStorage.getItem("foodItems")) || [];
@@ -27,7 +23,11 @@ const CreateFoodPost = () => {
     const [error, setError] = useState("");
     const [showModal, setShowModal] = useState(false);
 
-    // Save to localStorage on changes
+    useEffect(() => {
+        dispatch(fetchPosts());
+        dispatch(getAllUser());
+    }, [dispatch]);
+
     useEffect(() => {
         localStorage.setItem("foodItems", JSON.stringify(foodItems));
     }, [foodItems]);
@@ -35,6 +35,13 @@ const CreateFoodPost = () => {
     useEffect(() => {
         localStorage.setItem("formData", JSON.stringify(formData));
     }, [formData]);
+
+    useEffect(() => {
+        document.body.style.overflow = showModal ? "hidden" : "auto";
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, [showModal]);
 
     const handleNewItemChange = (e) => {
         const { name, value } = e.target;
@@ -77,11 +84,8 @@ const CreateFoodPost = () => {
                 setNewItem({ name: "", quantity: "", unit: "kg" });
                 setFormData({ location: "", description: "" });
                 setShowModal(false);
-
-                // Clear localStorage
                 localStorage.removeItem("foodItems");
                 localStorage.removeItem("formData");
-
                 dispatch(fetchPosts());
             })
             .catch((err) => {
@@ -107,36 +111,36 @@ const CreateFoodPost = () => {
                 </button>
             )}
 
+            {/* Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-md shadow-md max-w-lg w-full relative">
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+                    <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-lg relative">
                         <button
                             onClick={() => setShowModal(false)}
-                            className="text-red-500 absolute top-3 right-3 text-xl hover:text-red-700"
+                            className="absolute top-3 right-3 text-xl text-gray-600 hover:text-red-600"
                         >
                             ✖
                         </button>
                         <form onSubmit={handleSubmit}>
-                            <h2 className="text-xl font-semibold mb-4 text-center">
-                                Create Food Post
-                            </h2>
-                            {error && <p className="text-red-500 text-center">{error}</p>}
+                            <h2 className="text-2xl font-bold mb-4 text-center">Create Food Post</h2>
+                            {error && <p className="text-red-500 text-center mb-3">{error}</p>}
 
+                            {/* Food Items */}
                             <div className="mb-4">
-                                <h4 className="font-semibold">Food Items</h4>
-                                <div className="flex space-x-2 mb-2">
+                                <h4 className="font-semibold mb-2">Food Items</h4>
+                                <div className="flex flex-wrap gap-2 mb-3">
                                     <input
                                         type="text"
                                         name="name"
-                                        placeholder="Food name"
+                                        placeholder="Name"
                                         value={newItem.name}
                                         onChange={handleNewItemChange}
-                                        className="flex-1 px-3 py-2 border rounded-md"
+                                        className="flex-grow px-3 py-2 border rounded-md"
                                     />
                                     <input
                                         type="number"
                                         name="quantity"
-                                        placeholder="Quantity"
+                                        placeholder="Qty"
                                         value={newItem.quantity}
                                         onChange={handleNewItemChange}
                                         className="w-24 px-3 py-2 border rounded-md"
@@ -145,7 +149,7 @@ const CreateFoodPost = () => {
                                         name="unit"
                                         value={newItem.unit}
                                         onChange={handleNewItemChange}
-                                        className="px-2 py-2 border rounded-md"
+                                        className="px-3 py-2 border rounded-md"
                                     >
                                         <option value="kg">kg</option>
                                         <option value="litres">litres</option>
@@ -154,35 +158,30 @@ const CreateFoodPost = () => {
                                     <button
                                         type="button"
                                         onClick={addFoodItem}
-                                        className="bg-green-500 text-white px-3 py-2 rounded-md"
+                                        className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                                     >
                                         Add
                                     </button>
                                 </div>
-                                {foodItems.length > 0 && (
-                                    <ul>
-                                        {foodItems.map((item, index) => (
-                                            <li
-                                                key={index}
-                                                className="flex justify-between items-center mb-2"
+                                <ul className="space-y-1">
+                                    {foodItems.map((item, index) => (
+                                        <li key={index} className="flex justify-between items-center text-sm bg-gray-100 px-3 py-1 rounded-md">
+                                            <span>{item.name} - {item.quantity} {item.unit}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeFoodItem(index)}
+                                                className="text-red-500 hover:text-red-700"
                                             >
-                                                <span>
-                                                    {item.name} - {item.quantity} {item.unit}
-                                                </span>
-                                                <button
-                                                    onClick={() => removeFoodItem(index)}
-                                                    className="text-red-500"
-                                                >
-                                                    ❌
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
+                                                ❌
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
 
+                            {/* Description */}
                             <div className="mb-4">
-                                <label className="font-semibold">Description:</label>
+                                <label className="font-semibold block mb-1">Description:</label>
                                 <textarea
                                     name="description"
                                     value={formData.description}
@@ -191,8 +190,10 @@ const CreateFoodPost = () => {
                                     className="w-full px-3 py-2 border rounded-md h-24"
                                 />
                             </div>
+
+                            {/* Location */}
                             <div className="mb-4">
-                                <label className="font-semibold">Location:</label>
+                                <label className="font-semibold block mb-1">Location:</label>
                                 <input
                                     type="text"
                                     name="location"
@@ -203,26 +204,29 @@ const CreateFoodPost = () => {
                                 />
                             </div>
 
+
                             {formData.location && (
                                 <div className="mb-4">
                                     <h4 className="font-semibold">
                                         Nearby Users in "{formData.location}"
                                     </h4>
-                                    {userData.filter(
+                                    {allUser?.filter(
                                         (user) =>
                                             user.location?.toLowerCase() ===
                                             formData.location.toLowerCase()
                                     ).length > 0 ? (
                                         <ul>
-                                            {userData
+                                            {allUser
                                                 .filter(
                                                     (user) =>
+                                                        // {console.log(first)}
                                                         user.location?.toLowerCase() ===
                                                         formData.location.toLowerCase()
                                                 )
                                                 .map((user, index) => (
                                                     <li key={index} className="text-gray-600">
-                                                        👤 {user.name}
+                                                        {console.log(user)}
+                                                        👤 {user?.firstName}  📞 {user?.number}
                                                     </li>
                                                 ))}
                                         </ul>
@@ -233,6 +237,7 @@ const CreateFoodPost = () => {
                                     )}
                                 </div>
                             )}
+
                             <button
                                 type="submit"
                                 className="w-full bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 transition duration-300"
@@ -244,27 +249,27 @@ const CreateFoodPost = () => {
                 </div>
             )}
 
+            {/* Posts List */}
             {posts.length > 0 && (
-                <div>
-                    <h3 className="text-center text-lg font-bold my-6">
-                        📦 Submitted Posts
-                    </h3>
+                <div className="mt-12">
+                    <h3 className="text-center text-lg font-bold mb-4">📦 Submitted Posts</h3>
                     {posts.map((post, index) => (
-                        <div key={index} className="post-card">
-                            <button
+                        <div key={index} className="post-card relative p-4 mb-4 bg-gray-100 rounded-lg shadow">
+                            {role == "foodDonor" && <button
                                 onClick={() => handleDelete(post.id)}
-                                className="delete-btn"
+                                className="absolute top-2 right-2 text-red-500 hover:text-red-700"
                                 title="Delete Post"
                             >
                                 🗑️
                             </button>
-                            <h4 className="text-lg font-semibold text-gray-700">
+                            }
+                            <h4 className="text-lg font-semibold text-gray-700 mb-1">
                                 📍 {post.location}
                             </h4>
-                            <p className="text-gray-600">{post.description}</p>
-                            <ul>
+                            <p className="text-gray-600 mb-2">{post.description}</p>
+                            <ul className="pl-4 list-disc text-sm text-gray-700">
                                 {post.foodItems.map((item, i) => (
-                                    <li key={i} className="text-gray-500">
+                                    <li key={i}>
                                         🍽 {item.name} - {item.quantity} {item.unit}
                                     </li>
                                 ))}

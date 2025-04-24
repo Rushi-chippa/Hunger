@@ -32,11 +32,11 @@ const Dashboard = () => {
             case "post":
                 return <CreateFoodPost />;
             case "volunteers":
-                return role === "foodDonar" ? <Volunteer /> : <h2 className="text-lg">❌ Access Denied</h2>;
-            case "foodDonar":
+                return role === "foodDonor" && <Volunteer />
+            case "foodDonor":
                 return <FoodDonorPage />;
             case "earnings":
-                return role === "admin" ? (
+                return role === "foodDonor" ? (
                     <h2 className="text-xl font-semibold">💰 Food Delivery History</h2>
                 ) : (
                     <h2 className="text-lg">❌ Access Denied</h2>
@@ -66,12 +66,12 @@ const Dashboard = () => {
                             </>
                         )}
                     </li>
-                    {role === "foodDonar" && (
+                    {role === "foodDonor" && (
                         <li className={activeTab === "volunteers" ? "active" : ""} onClick={() => setActiveTab("volunteers")}>
                             <Users size={18} /> Volunteers
                         </li>
                     )}
-                    <li className={activeTab === "foodDonar" ? "active" : ""} onClick={() => setActiveTab("foodDonar")}>
+                    <li className={activeTab === "foodDonor" ? "active" : ""} onClick={() => setActiveTab("foodDonor")}>
                         <Utensils size={18} /> Food Donor
                     </li>
                     {role === "admin" && (

@@ -50,6 +50,7 @@ export const logoutUser = createAsyncThunk("user/logout", async () => {
 export const getAllUser = createAsyncThunk("user/all", async (_, { rejectWithValue }) => {
     try {
         const res = await axiosInstance.get("/users");
+        console.log(res.data)
         return res.data;
     } catch (error) {
         return rejectWithValue(error.response?.data || "Failed to fetch users");
@@ -69,6 +70,7 @@ const userSlice = createSlice({
                 state.error = null;
             })
             .addCase(getAllUser.fulfilled, (state, action) => {
+                console.log(action.payload)
                 state.allUser = action.payload;
                 state.loading = false;
             })
@@ -83,6 +85,9 @@ const userSlice = createSlice({
                 state.error = null;
             })
             .addCase(createUser.fulfilled, (state, action) => {
+
+
+
                 state.data = action.payload;
                 state.role = action.payload.role;
                 state.loading = false;
@@ -109,6 +114,7 @@ const userSlice = createSlice({
                 state.error = null;
             })
             .addCase(loginUser.fulfilled, (state, action) => {
+
                 state.data = action.payload;
                 state.role = action.payload.user_role;
                 state.loading = false;

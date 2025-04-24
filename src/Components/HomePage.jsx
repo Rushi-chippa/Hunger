@@ -39,7 +39,7 @@ const HomePage = () => {
             maxWidth: '800px',
           }}
         >
-          <h1 className="display-3 fw-bold mb-4">Join the Hunger Project</h1>
+          <h1 className="display-3 fw-bold mb-4">Join the Hunger's Need</h1>
           <p className="lead mb-4">
             Together, we can make a difference in the fight against hunger. Take action today—whether as an admin, donor, or NGO.
           </p>
@@ -56,12 +56,12 @@ const HomePage = () => {
           {[
             {
               title: "Admin Dashboard",
-              desc: "Manage users, donations, and track the progress of the mission with ease.",
+              desc: "If you can't feed a hundred people, then feed just one. ",
               img: "https://img.freepik.com/free-vector/admin-concept-illustration_114360-5032.jpg?w=740",
             },
             {
               title: "User Panel",
-              desc: "Donate, track your impact, and see how your contribution is changing lives.",
+              desc: "Hunger is not an issue of charity. It is an issue of justice. ",
               img: "https://img.freepik.com/free-vector/donation-concept-illustration_114360-1806.jpg?t=st=1713548785~exp=1713552385~hmac=b0544a28dc3bd219cdb79cce92e4f457bfbf117155b3b7c3a5ad8395a7b6b0e5&w=740",
             },
             {
@@ -74,7 +74,7 @@ const HomePage = () => {
               <div className="card h-100 shadow-lg border-0">
                 <img src={feature.img} className="card-img-top" alt={feature.title} style={{ height: '220px', objectFit: 'cover' }} />
                 <div className="card-body">
-                  <h5 className="card-title">{feature.title}</h5>
+                  {/* <h5 className="card-title">{feature.title}</h5> */}
                   <p className="card-text">{feature.desc}</p>
                 </div>
               </div>
@@ -91,15 +91,15 @@ const HomePage = () => {
             {[
               {
                 quote: "This platform has made it easier to deliver food to families in need. It's a great tool for making a real difference!",
-                author: "John Doe, NGO Volunteer",
+                author: "John Doer",
               },
               {
                 quote: "I donated in just a few clicks, and it felt amazing to know my contribution is directly fighting hunger.",
-                author: "Jane Smith, Donor",
+                author: "Jane Smith",
               },
               {
                 quote: "Managing donations and tracking progress in real-time has been incredible. It's rewarding to see the impact!",
-                author: "Alice Brown, Admin",
+                author: "Alice Brown",
               },
             ].map((t, idx) => (
               <div className="col-md-4 mb-4" key={idx}>
